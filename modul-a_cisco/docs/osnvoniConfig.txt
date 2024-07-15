@@ -1,0 +1,38 @@
+enable
+conf t
+
+hostname SW-ACCESS-CB-01
+interface loopback 0
+ip address 192.2.1.32 255.255.255.255
+
+aaa new-model
+aaa authentication login default local
+ip domain-name cbank.local
+username netadmin privilege 15 secret SuperGeslo@2024
+service password-encryption
+
+ip ssh rsa keypair-name sshkey
+crypto key generate rsa usage-keys label sshkey modulus 768
+ip ssh version 2
+
+line vty 0 4
+login authentication default
+transport input ssh
+
+aaa common-criteria policy CB-URGENT
+min-length 10
+special-case 1
+upper-case 1
+lower-case 1
+lifetime month 6
+
+username urgent common-criteria-policy CB-URGENT secret SuperGeslo@2024
+
+clock timezone CET -1
+clock summer-time CEST recurring last Sun Mar 2:00 last Sun Oct 3:00
+
+logging buffered 200000
+service timestamps log datetime msec localtime year show-timezone
+service timestamps debug datetime msec localtime year show-timezone
+
+banner motd $Vegovci so zakon!$
